@@ -6,15 +6,15 @@ const nextConfig = {
     return [
       {
         source: '/client/:path*',
-        destination: 'http://localhost:3001/:path*',
+        destination: 'http://localhost:3001/client/:path*',
       },
       {
         source: '/agency/:path*',
-        destination: 'http://localhost:3002/:path*',
+        destination: 'http://localhost:3002/agency/:path*',
       },
       {
         source: '/organisation/:path*',
-        destination: 'http://localhost:3003/:path*',
+        destination: 'http://localhost:3003/organisation/:path*',
       },
     ];
   },
