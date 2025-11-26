@@ -81,12 +81,13 @@ export class OfflineSyncManager {
   /**
    * Add an item to the sync queue
    */
-  async addToQueue(item: Omit<SyncQueueItem, 'id' | 'timestamp' | 'retryCount' | 'status'>): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async addToQueue<T extends Record<string, any>>(item: Omit<SyncQueueItem<T>, 'id' | 'timestamp' | 'retryCount' | 'status'>): Promise<string> {
     if (!this.db) {
       throw new Error('Database not initialized');
     }
 
-    const queueItem: SyncQueueItem = {
+    const queueItem: SyncQueueItem<T> = {
       ...item,
       id: crypto.randomUUID(),
       timestamp: Date.now(),

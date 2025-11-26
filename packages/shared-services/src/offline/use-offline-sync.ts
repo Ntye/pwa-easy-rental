@@ -8,7 +8,8 @@ export interface UseOfflineSyncResult {
   isOnline: boolean;
   isPending: boolean;
   queueStats: { pending: number; failed: number; total: number };
-  addToQueue: (item: Omit<SyncQueueItem, 'id' | 'timestamp' | 'retryCount' | 'status'>) => Promise<string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addToQueue: <T extends Record<string, any>>(item: Omit<SyncQueueItem<T>, 'id' | 'timestamp' | 'retryCount' | 'status'>) => Promise<string>;
   processQueue: () => Promise<void>;
   cacheData: (key: string, entity: string, value: unknown) => Promise<void>;
   getCachedData: <T>(key: string) => Promise<T | null>;
@@ -58,7 +59,8 @@ export function useOfflineSync(config?: Partial<OfflineConfig>): UseOfflineSyncR
   }, [manager]);
 
   const addToQueue = useCallback(
-    async (item: Omit<SyncQueueItem, 'id' | 'timestamp' | 'retryCount' | 'status'>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async <T extends Record<string, any>>(item: Omit<SyncQueueItem<T>, 'id' | 'timestamp' | 'retryCount' | 'status'>) => {
       if (!manager) {
         throw new Error('Offline sync manager not initialized');
       }

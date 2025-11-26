@@ -1,9 +1,10 @@
-export interface SyncQueueItem {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface SyncQueueItem<T extends Record<string, any> = Record<string, unknown>> {
   id: string;
   timestamp: number;
   type: 'CREATE' | 'UPDATE' | 'DELETE';
   entity: string;
-  data: Record<string, unknown>;
+  data: T;
   retryCount: number;
   status: 'pending' | 'syncing' | 'synced' | 'failed';
 }

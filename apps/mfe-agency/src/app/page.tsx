@@ -78,7 +78,7 @@ export default function AgencyPage() {
     await addToQueue({
       type: 'CREATE',
       entity: 'listing',
-      data: newListing as unknown as Record<string, unknown>,
+      data: newListing,
     });
     
     setNewListingTitle('');
