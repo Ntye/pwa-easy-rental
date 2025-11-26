@@ -1,0 +1,21 @@
+{
+  "name": "Organisation Hub - PWA Easy Rental",
+  "short_name": "Organisation Hub",
+  "description": "Oversee agencies, analytics, and system settings",
+  "start_url": "/organisation",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#075985",
+  "icons": [
+    {
+      "src": "/organisation/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/organisation/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

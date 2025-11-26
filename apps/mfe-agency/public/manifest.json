@@ -1,0 +1,21 @@
+{
+  "name": "Agency Dashboard - PWA Easy Rental",
+  "short_name": "Agency Dashboard",
+  "description": "Manage your rental listings and bookings",
+  "start_url": "/agency",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0369a1",
+  "icons": [
+    {
+      "src": "/agency/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/agency/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
