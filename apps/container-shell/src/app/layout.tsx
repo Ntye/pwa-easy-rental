@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 
 export const metadata: Metadata = {
-  title: 'PWA Easy Rental',
+  title: 'Easy Rental',
   description: 'Easy rental platform for clients, agencies, and organizations',
   manifest: '/manifest.json',
 };

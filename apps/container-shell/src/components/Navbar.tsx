@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
@@ -17,13 +16,13 @@ export function Navbar() {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold text-primary-600">
-            PWA Easy Rental
-          </Link>
+          <a href="/" className="text-xl font-bold text-primary-600">
+            Easy Rental
+          </a>
           
           <div className="flex space-x-4">
             {navItems.map((item) => (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -33,7 +32,7 @@ export function Navbar() {
                 }`}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </div>
         </div>

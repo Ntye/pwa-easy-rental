@@ -5,6 +5,7 @@ import { getOfflineSyncManager, OfflineSyncManager } from './sync-manager';
 import type { SyncQueueItem, OfflineConfig } from '../types';
 
 export interface UseOfflineSyncResult {
+  isInitialized: boolean;
   isOnline: boolean;
   isPending: boolean;
   queueStats: { pending: number; failed: number; total: number };
@@ -21,20 +22,22 @@ export interface UseOfflineSyncResult {
  */
 export function useOfflineSync(config?: Partial<OfflineConfig>): UseOfflineSyncResult {
   const [manager, setManager] = useState<OfflineSyncManager | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [isPending, setIsPending] = useState(false);
   const [queueStats, setQueueStats] = useState({ pending: 0, failed: 0, total: 0 });
 
   useEffect(() => {
     const syncManager = getOfflineSyncManager(config);
-    
+
     const initManager = async () => {
       await syncManager.init();
       setManager(syncManager);
       setIsOnline(syncManager.getOnlineStatus());
-      
+
       const stats = await syncManager.getQueueStats();
       setQueueStats(stats);
+      setIsInitialized(true);
     };
 
     initManager();
@@ -59,16 +62,16 @@ export function useOfflineSync(config?: Partial<OfflineConfig>): UseOfflineSyncR
   }, [manager]);
 
   const addToQueue = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async <T extends Record<string, any>>(item: Omit<SyncQueueItem<T>, 'id' | 'timestamp' | 'retryCount' | 'status'>) => {
-      if (!manager) {
-        throw new Error('Offline sync manager not initialized');
-      }
-      const id = await manager.addToQueue(item);
-      await updateStats();
-      return id;
-    },
-    [manager, updateStats]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async <T extends Record<string, any>>(item: Omit<SyncQueueItem<T>, 'id' | 'timestamp' | 'retryCount' | 'status'>) => {
+        if (!manager) {
+          throw new Error('Offline sync manager not initialized');
+        }
+        const id = await manager.addToQueue(item);
+        await updateStats();
+        return id;
+      },
+      [manager, updateStats]
   );
 
   const processQueue = useCallback(async () => {
@@ -82,35 +85,36 @@ export function useOfflineSync(config?: Partial<OfflineConfig>): UseOfflineSyncR
   }, [manager, updateStats]);
 
   const cacheData = useCallback(
-    async (key: string, entity: string, value: unknown) => {
-      if (!manager) {
-        throw new Error('Offline sync manager not initialized');
-      }
-      await manager.cacheData(key, entity, value);
-    },
-    [manager]
+      async (key: string, entity: string, value: unknown) => {
+        if (!manager) {
+          throw new Error('Offline sync manager not initialized');
+        }
+        await manager.cacheData(key, entity, value);
+      },
+      [manager]
   );
 
   const getCachedData = useCallback(
-    async <T,>(key: string): Promise<T | null> => {
-      if (!manager) {
-        return null;
-      }
-      return manager.getCachedData<T>(key);
-    },
-    [manager]
+      async <T,>(key: string): Promise<T | null> => {
+        if (!manager) {
+          return null;
+        }
+        return manager.getCachedData<T>(key);
+      },
+      [manager]
   );
 
   const registerSyncHandler = useCallback(
-    (entity: string, handler: (item: SyncQueueItem) => Promise<boolean>) => {
-      if (manager) {
-        manager.registerSyncHandler(entity, handler);
-      }
-    },
-    [manager]
+      (entity: string, handler: (item: SyncQueueItem) => Promise<boolean>) => {
+        if (manager) {
+          manager.registerSyncHandler(entity, handler);
+        }
+      },
+      [manager]
   );
 
   return {
+    isInitialized,
     isOnline,
     isPending,
     queueStats,

@@ -37,23 +37,25 @@ const mockRentals: Rental[] = [
 ];
 
 export default function ClientPage() {
-  const { isOnline, queueStats, addToQueue, cacheData, getCachedData } = useOfflineSync();
+  const { isInitialized, isOnline, queueStats, addToQueue, cacheData, getCachedData } = useOfflineSync();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Load rentals from cache or use mock data
     const loadRentals = async () => {
-      const cached = await getCachedData<Rental[]>('rentals');
-      if (cached) {
-        setRentals(cached);
-      } else {
-        setRentals(mockRentals);
-        await cacheData('rentals', 'rental', mockRentals);
+      if (isInitialized) {
+        const cached = await getCachedData<Rental[]>('rentals');
+        if (cached) {
+          setRentals(cached);
+        } else {
+          setRentals(mockRentals);
+          await cacheData('rentals', 'rental', mockRentals);
+        }
       }
     };
     loadRentals();
-  }, [getCachedData, cacheData]);
+  }, [isInitialized, getCachedData, cacheData]);
 
   const handleBooking = async (rental: Rental) => {
     await addToQueue({
@@ -69,73 +71,79 @@ export default function ClientPage() {
   };
 
   const filteredRentals = rentals.filter(
-    (rental) =>
-      rental.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rental.location.toLowerCase().includes(searchQuery.toLowerCase())
+      (rental) =>
+          rental.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          rental.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-secondary-800 mb-4">
-          Browse Available Rentals
-        </h2>
-        
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex-1">
-            <Input
-              placeholder="Search by title or location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-secondary-800 mb-4">
+            Browse Available Rentals
+          </h2>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex-1">
+              <Input
+                  placeholder="Search by title or location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-secondary-600">
+              {isOnline ? (
+                  <span className="text-green-600">● Online</span>
+              ) : (
+                  <span className="text-yellow-600">● Offline</span>
+              )}
+            </div>
           </div>
-          <div className="text-sm text-secondary-600">
-            {isOnline ? (
-              <span className="text-green-600">● Online</span>
-            ) : (
-              <span className="text-yellow-600">● Offline</span>
-            )}
-          </div>
+
+          {queueStats.pending > 0 && (
+              <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md mb-4">
+                {queueStats.pending} pending sync item(s)
+              </div>
+          )}
         </div>
 
-        {queueStats.pending > 0 && (
-          <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md mb-4">
-            {queueStats.pending} pending sync item(s)
-          </div>
-        )}
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {filteredRentals.map((rental) => (
-          <Card key={rental.id} className="hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-secondary-800 mb-2">
-              {rental.title}
-            </h3>
-            <p className="text-secondary-600 mb-2">{rental.description}</p>
-            <div className="flex items-center justify-between mb-4">
+        <div className="grid md:grid-cols-2 gap-6">
+          {filteredRentals.map((rental) => (
+              <Card key={rental.id} className="hover:shadow-lg transition-shadow">
+                <h3 className="text-lg font-semibold text-secondary-800 mb-2">
+                  {rental.title}
+                </h3>
+                <p className="text-secondary-600 mb-2">{rental.description}</p>
+                <div className="flex items-center justify-between mb-4">
               <span className="text-primary-600 font-bold">
                 ${rental.price}/night
               </span>
-              <span className="text-secondary-500 text-sm">{rental.location}</span>
-            </div>
-            <Button
-              variant="primary"
-              onClick={() => handleBooking(rental)}
-              className="w-full"
-            >
-              Book Now
-            </Button>
-          </Card>
-        ))}
-      </div>
+                  <span className="text-secondary-500 text-sm">{rental.location}</span>
+                </div>
+                <Button
+                    variant="primary"
+                    onClick={() => handleBooking(rental)}
+                    className="w-full"
+                >
+                  Book Now
+                </Button>
+              </Card>
+          ))}
+        </div>
 
-      {filteredRentals.length === 0 && (
-        <Card className="text-center py-8">
-          <p className="text-secondary-600">
-            No rentals found matching your search.
-          </p>
-        </Card>
-      )}
-    </div>
+        {filteredRentals.length === 0 && (
+            <Card className="text-center py-8">
+              <p className="text-secondary-600">
+                No rentals found matching your search.
+              </p>
+            </Card>
+        )}
+
+        {!isInitialized && (
+            <Card className="text-center py-8">
+              <p className="text-secondary-600">Initializing offline sync...</p>
+            </Card>
+        )}
+      </div>
   );
 }
